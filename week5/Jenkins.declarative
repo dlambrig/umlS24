@@ -6,7 +6,7 @@ pipeline {
       // Define the pod template directly within the kubernetes agent
       containerTemplate {
         name 'gradle'
-        image 'gradle:6.3-jdk14'
+        image 'gradle'
         command 'sleep'
         args '30d'
       }
