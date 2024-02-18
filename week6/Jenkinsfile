@@ -21,17 +21,13 @@ pipeline {
         """
       }
     }
-    stage('Run pipeline against a gradle project - test MAIN') {
+    stage('Run pipeline against a gradle project - test branch') {
       when {
-        not { branch 'main' }
+        not { branch 'master' }
       }
       steps {
-        container('gradle') {
-          steps {
-            echo 'Unit test not main branch'
-            sh "./gradlew test"
-          }
-        }
+         echo 'Unit test not main branch'
+         sh "./gradlew test"
       }
     }
   }
