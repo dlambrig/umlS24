@@ -2,21 +2,15 @@ pipeline {
   agent {
     kubernetes {
       // Define the pod template with container template
-      podTemplate {
-        // Define the container template
-        containers {
-          containerTemplate {
+      containerTemplate {
             name 'gradle'
             image 'gradle'
             command 'sleep'
             args '30d'
-          }
         }
-        // Label the pod
-        label 'POD_LABEL'
-      }
     }
   }
+  
   stages {
     stage('Checkout code and prepare environment') {
       steps {
