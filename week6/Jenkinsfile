@@ -23,7 +23,7 @@ pipeline {
     }
     stage('Run pipeline against a gradle project - test branch') {
       when {
-        not { branch 'master' }
+        not { branch 'main' }
       }
       steps {
          echo 'Unit test not main branch'
