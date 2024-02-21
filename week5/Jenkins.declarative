@@ -1,44 +1,57 @@
-// This example uses Jenkin's "declarative" syntax
+// This example uses Jenkin's "scripted" syntax, as opposed to its "declarative" syntax
+// see: https://www.jenkins.io/doc/book/pipeline/syntax/#scripted-pipeline
 
-pipeline {
-  agent {
-    kubernetes {
-      // Define the pod template directly within the kubernetes agent
-      containerTemplate {
-        name 'gradle'
-        image 'gradle'
-        command 'sleep'
-        args '30d'
-      }
-    }
-  }
+// Defines a Kubernetes pod template that can be used to create nodes.
+podTemplate(
+    containers: [
+        containerTemplate(
+            name: 'gradle',
+            image: 'gradle',
+            command: 'sleep',
+            args: '30d'
+        ),
+    ],
+    // Set pod retention policy to keep the pod only if the job fails
+    podRetention: onFailure()
+) {
+    node(POD_LABEL) {
+        stage('Run pipeline against a gradle project') {
+            // "container" Selects a container of the agent pod so that all shell steps are
+            // executed in that container.
+            container('gradle') {
+                stage('Build a gradle project') {
+                    // from the git plugin
+                    // https://www.jenkins.io/doc/pipeline/steps/git/
+                    git 'https://github.com/MoiseGermain/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git'
+                    sh '''
+                    cd Chapter08/sample1
+                    chmod +x gradlew
+                    '''
+                }
+                
+                stage("Tests") {
+                    try {
+                        sh '''
+                        pwd
+                        cd Chapter08/sample1
+                        ./gradlew test
+                        ./gradlew jacocoTestReport
+                        '''
+                    } catch (Exception e) {
+                        echo 'Failure detected'
+                        throw e // Ensure failure is propagated
+                    }
 
-  stages {
-    stage('Checkout code and prepare environment') {
-      steps {
-        git url: 'https://github.com/dlambrig/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
-        sh """
-          cd Chapter08/sample1
-          chmod +x gradlew
-        """
-      }
+                    // from the HTML publisher plugin
+                    // https://www.jenkins.io/doc/pipeline/steps/htmlpublisher/
+                stage('Publish JaCoCo Checkstyle Report')
+                    publishHTML(target: [
+                        reportDir: 'Chapter08/sample1/build/reports/tests/test',
+                        reportFiles: 'index.html',
+                        reportName: "jacoco checkstyle"
+                        ])
+                    }
+                }
+            }
+        }
     }
-
-    stage('Run tests and generate reports') {
-      steps {
-        sh """
-          cd Chapter08/sample1
-          ./gradlew test
-          ./gradlew jacocoTestReport
-        """
-        publishHTML (
-          target: [
-            reportDir: 'Chapter08/sample1/build/reports/tests/test',
-            reportFiles: 'index.html',
-            reportName: "JaCoCo Report"
-          ]
-        )
-      }
-    }
-  }
-}
