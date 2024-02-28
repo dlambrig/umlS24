@@ -10,7 +10,8 @@ pipeline {
         }
     }
   }
-  
+
+  //prepare environment 
   stages {
     stage('Checkout code and prepare environment') {
       steps {
@@ -21,7 +22,26 @@ pipeline {
         """
       }
     }
-    stage('Run pipeline against a gradle project - test branch') {
+
+    //run tests on main branch
+    stage("Code coverage") {
+      when {
+        // Run CodeCoverage test only on the main branch
+              branch 'main'
+            }
+      try {
+      sh '''
+        pwd
+        ./gradlew jacocoTestCoverageVerification
+       '''
+      } catch (Exception E) {
+          echo 'Failure detected'
+      }
+
+    }
+
+    //run tests on all other branches
+    stage('Run Unit test and Checkstyle - all other branches') {
       when {
         not { branch 'main' }
       }
@@ -30,6 +50,7 @@ pipeline {
          sh """
            cd Chapter08/sample1; 
            ./gradlew test
+           ./gradlew checkstyleMain
          """
       }
     }
