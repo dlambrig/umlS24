@@ -21,6 +21,9 @@ podTemplate(containers: [
                     ./gradlew test 
                     '''
                 }
+
+
+                //code coverage only for main
                 stage("Code coverage") {
                     try {
                     sh '''
@@ -31,34 +34,46 @@ podTemplate(containers: [
                     } catch (Exception E) {
                         echo 'Failure detected'
                     }
-                    // from the HTML publisher plugin
-                    // https://www.jenkins.io/doc/pipeline/steps/htmlpublisher/
-                    publishHTML(target: [
-                        reportDir: 'build/reports/tests/test',
-                        reportFiles: 'index.html',
-                        reportName: "JaCoCo Report"
-                    ])
 
                 }
                 
-                stage("Checkstyle") {
-                    try {
-                    sh '''
-                       pwd
-                       ./gradlew checkstyleMain
-                     '''
-                    } catch (Exception E) {
-                        echo 'Failure detected'
-                    }
-                    // from the HTML publisher plugin
-                    // https://www.jenkins.io/doc/pipeline/steps/htmlpublisher/
-                    publishHTML(target: [
-                        reportDir: 'build/reports/checkstyle',
-                        reportFiles: 'main.html',
-                        reportName: "Checkstyle Report"
-                    ])
+                //all other tests for other branches
+                stage('Run pipeline against a gradle project - all other branches') {
+                      when {
+                        not { branch 'main' }
+                      }
+                      steps {
+                          //run unit test
+                         echo 'Unit test not main branch'
+                         sh """
+                           cd Chapter08/sample1; 
+                           ./gradlew test
+                         """
+                      }
 
-                }
+                    //run checkstyle
+                        try {
+                        sh '''
+                           pwd
+                           ./gradlew checkstyleMain
+                         '''
+                        } catch (Exception E) {
+                            echo 'Failure detected'
+                        }
+                        // from the HTML publisher plugin
+                        // https://www.jenkins.io/doc/pipeline/steps/htmlpublisher/
+                        publishHTML(target: [
+                            reportDir: 'build/reports/checkstyle',
+                            reportFiles: 'main.html',
+                            reportName: "Checkstyle Report"
+                        ])
+                    
+                    }
+                
+                // stage("Checkstyle") {
+                    
+
+                // }
             }
         }
     }
