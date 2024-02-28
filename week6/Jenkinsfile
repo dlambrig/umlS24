@@ -24,7 +24,7 @@ pipeline {
     }
 
     //run tests on main branch
-    stage("Code coverage") {
+    stage('Code coverage') {
       when {
         // Run CodeCoverage test only on the main branch
               branch 'main'
