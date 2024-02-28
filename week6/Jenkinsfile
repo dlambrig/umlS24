@@ -29,14 +29,11 @@ pipeline {
         // Run CodeCoverage test only on the main branch
               branch 'main'
             }
-      try {
+      echo 'Code coverage on main branch'
       sh '''
         pwd
         ./gradlew jacocoTestCoverageVerification
        '''
-      } catch (Exception E) {
-          echo 'Failure detected'
-      }
 
     }
 
