@@ -15,9 +15,8 @@ pipeline {
   stages {
     stage('Checkout code and prepare environment') {
       steps {
-        git url: 'https://github.com/dlambrig/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
+        git url: 'https://github.com/bufferbox/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
         sh '''
-          cd Chapter08/sample1
           chmod +x gradlew
         '''
       }
@@ -47,7 +46,6 @@ pipeline {
          echo 'Unit test not main branch'
          sh '''
            pwd
-           cd Chapter08/sample1; 
            ./gradlew test
            ./gradlew checkstyleMain
          '''
