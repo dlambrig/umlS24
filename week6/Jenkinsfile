@@ -16,10 +16,10 @@ pipeline {
     stage('Checkout code and prepare environment') {
       steps {
         git url: 'https://github.com/dlambrig/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
-        sh """
+        sh '''
           cd Chapter08/sample1
           chmod +x gradlew
-        """
+        '''
       }
     }
 
@@ -29,12 +29,13 @@ pipeline {
         // Run CodeCoverage test only on the main branch
               branch 'main'
             }
-      echo 'Code coverage on main branch'
-      sh '''
-        pwd
-        ./gradlew jacocoTestCoverageVerification
-       '''
-
+      steps{
+        echo 'Code coverage on main branch'
+        sh '''
+          pwd
+          ./gradlew jacocoTestCoverageVerification
+         '''
+      }
     }
 
     //run tests on all other branches
@@ -44,11 +45,11 @@ pipeline {
       }
       steps {
          echo 'Unit test not main branch'
-         sh """
+         sh '''
            cd Chapter08/sample1; 
            ./gradlew test
            ./gradlew checkstyleMain
-         """
+         '''
       }
     }
   }
