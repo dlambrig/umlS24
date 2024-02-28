@@ -52,7 +52,7 @@ podTemplate(containers: [
                       }
 
                     //run checkstyle
-                    stage('Run checkstyle test - all other branches) {
+                    stage('Run checkstyle test - all other branches') {
                         try {
                         sh '''
                            pwd
