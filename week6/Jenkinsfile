@@ -22,14 +22,14 @@ pipeline {
       }
     }
 
-    //run tests on master branch
+    //run tests on main branch
     stage('Code coverage') {
       when {
         // Run CodeCoverage test only on the main branch
-              branch 'master'
+              branch 'main'
             }
       steps{
-        echo 'Code coverage on master branch'
+        echo 'Code coverage on main branch'
         sh '''
           pwd
           ./gradlew jacocoTestCoverageVerification
@@ -40,7 +40,7 @@ pipeline {
     //run tests on all other branches
     stage('Run Unit test and Checkstyle - all other branches') {
       when {
-        not { branch 'master' }
+        not { branch 'main' }
       }
       steps {
          echo 'Unit test not main branch'
