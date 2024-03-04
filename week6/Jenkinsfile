@@ -4,7 +4,7 @@ pipeline {
       // Define the pod template with container template
       containerTemplate {
             name 'gradle'
-            image 'gradle'
+            image 'gradle:latest'
             command 'sleep'
             args '30d'
         }
