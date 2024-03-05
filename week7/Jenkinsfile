@@ -33,7 +33,25 @@ pipeline {
         sh '''
           pwd
           ./gradlew jacocoTestCoverageVerification
+          ./gradlew jacocoTestReport 
          '''
+      }
+      post{
+        always{
+          echo 'Generating JaCoCo Report'
+      // from the HTML publisher plugin
+      // https://www.jenkins.io/doc/pipeline/steps/htmlpublisher/
+         publishHTML(target: [
+           reportDir: 'build/reports/tests/test',
+           reportFiles: 'index.html',
+           reportName: "JaCoCo Report"
+          ])
+        }
+          success{
+            echo 'Tests pass!'
+        }
+          failure{
+            echo 'Tests fail!'
       }
     }
 
@@ -50,6 +68,14 @@ pipeline {
            ./gradlew checkstyleMain
          '''
       }
+
+      // from the HTML publisher plugin
+      // https://www.jenkins.io/doc/pipeline/steps/htmlpublisher/
+        publishHTML(target: [
+            reportDir: 'build/reports/checkstyle',
+            reportFiles: 'main.html',
+            reportName: "Checkstyle Report"
+        ])
     }
   }
   post {
