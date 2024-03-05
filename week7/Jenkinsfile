@@ -53,6 +53,7 @@ pipeline {
           failure{
             echo 'Tests fail!'
       }
+     }
     }
 
     //run tests on all other branches
