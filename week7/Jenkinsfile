@@ -1,62 +1,42 @@
 pipeline {
   agent {
     kubernetes {
-      // Use yaml syntax for defining the pod with a Gradle and JNLP (Jenkins agent) containers
-      yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    project: "sample-project"
-spec:
-  containers:
-  - name: gradle
-    image: gradle:latest
-    command:
-    - cat
-    tty: true
-  - name: jnlp
-    image: jenkins/inbound-agent:latest
-    args: '${computer.jnlpmac} ${computer.name}'
-  restartPolicy: Never
-"""
+      // Define the pod template with container template
+      containerTemplate {
+            name 'gradle'
+            image 'gradle'
+            command 'sleep'
+            args '30d'
+        }
     }
-  }
-
-  environment {
-    GIT_URL = 'https://github.com/freshbrezzy3/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git'
-    PROJECT_PATH = 'Chapter08/sample1'
   }
 
   stages {
     stage('Checkout code and prepare environment') {
       steps {
-        container('jnlp') {
-          git url: "${GIT_URL}", branch: 'main'
-          dir("${PROJECT_PATH}") {
-            sh 'chmod +x gradlew'
-          }
-        }
+        git url: 'https://github.com/freshbrezzy3/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
+        sh """
+          cd Chapter08/sample1
+          chmod +x gradlew
+        """
       }
     }
-    
     stage('Run pipeline against a gradle project - test branch') {
       when {
         not { branch 'main' }
-      }
+     }
       steps {
-        container('gradle') {
-          dir("${PROJECT_PATH}") {
-            sh './gradlew test'
-          }
-        }
+         echo 'Unit test not main branch'
+         sh """
+           cd Chapter08/sample1;
+           ./gradlew test
+         """
       }
     }
   }
-  
   post {
     always {
-      echo 'Pipeline completed'
+      echo 'pipeline completed'
     }
   }
 }
