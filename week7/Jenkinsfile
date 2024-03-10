@@ -10,11 +10,11 @@ pipeline {
         }
     }
   }
-
+  
   stages {
     stage('Checkout code and prepare environment') {
       steps {
-        git url: 'https://github.com/freshbrezzy3/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
+        git url: 'https://github.com/dlambrig/Continuous-Delivery-with-Docker-and-Jenkins-Second-Edition.git', branch: 'master'
         sh """
           cd Chapter08/sample1
           chmod +x gradlew
@@ -24,11 +24,11 @@ pipeline {
     stage('Run pipeline against a gradle project - test branch') {
       when {
         not { branch 'main' }
-     }
+      }
       steps {
          echo 'Unit test not main branch'
          sh """
-           cd Chapter08/sample1;
+           cd Chapter08/sample1; 
            ./gradlew test
          """
       }
@@ -40,4 +40,3 @@ pipeline {
     }
   }
 }
-
