@@ -1,0 +1,47 @@
+podTemplate(yaml: '''
+    apiVersion: v1
+    kind: Pod
+    spec:
+      containers:
+      - name: cloud-sdk
+        image: google/cloud-sdk:latest
+        command:
+        - sleep
+        args:
+        - 9999999
+        volumeMounts:
+        - name: shared-storage
+          mountPath: /mnt
+        - name: google-cloud-key
+          mountPath: /var/secrets/google
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/secrets/google/umls24-418119-e57e00d7513d.json        
+      restartPolicy: Never
+      volumes:
+      - name: shared-storage
+        persistentVolumeClaim:
+          claimName: jenkins-pv-claim
+      - name: google-cloud-key
+        secret:
+          secretName: sdk-key          
+''') {
+  node(POD_LABEL) {
+    stage('Deploying to prod') {
+      container('cloud-sdk') {
+        stage('Build a gradle project') {
+          sh '''
+          echo 'namespaces in the staging environment'
+          kubectl get ns
+          echo '142.251.40.138  oauth2.googleapis.com' >> /etc/hosts
+          echo $GOOGLE_APPLICATION_CREDENTIALS
+          gcloud auth login --cred-file=$GOOGLE_APPLICATION_CREDENTIALS --no-launch-browser
+          gcloud container clusters get-credentials hello-cluster --region us-central1 --project umls24-418119 
+          echo 'namespaces in the prod environment'
+          kubectl get ns
+          '''
+        }
+      }
+    }
+  }
+}
