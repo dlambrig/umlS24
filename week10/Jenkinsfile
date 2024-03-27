@@ -33,7 +33,6 @@ podTemplate(yaml: '''
           sh '''
           echo 'namespaces in the staging environment'
           kubectl get ns
-          echo '142.251.40.138  oauth2.googleapis.com' >> /etc/hosts
           echo $GOOGLE_APPLICATION_CREDENTIALS
           gcloud auth login --cred-file=$GOOGLE_APPLICATION_CREDENTIALS --no-launch-browser
           gcloud container clusters get-credentials hello-cluster --region us-central1 --project umls24-418119 
