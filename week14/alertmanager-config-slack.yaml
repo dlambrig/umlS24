@@ -1,0 +1,41 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  labels:
+    alertmanagerConfig: example
+  name: slack
+spec:
+  receivers:
+  - name: slack-receiver
+    slackConfigs:
+    - apiURL:
+        key: apiURL
+        name: slack-secret
+        optional: false
+      channel: '#general'
+      title: '[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len}}{{ end }}] Monitoring Event Notification'
+      text: |-
+        {{ range .Alerts }}
+          *Alert:* {{ .Annotations.summary }} - `{{ .Labels.severity }}`
+          *Description:* {{ .Annotations.description }}
+          *Graph:* <{{ .GeneratorURL }}|:chart_with_upwards_trend:> *Runbook:* <{{.Annotations.runbook }}|:spiral_note_pad:>
+          *Details:*
+          {{ range .Labels.SortedPairs }} *{{ .Name }}:* `{{ .Value }}`
+          {{ end }}
+          {{ end }}
+  route:
+    groupBy:
+    - severity
+    groupInterval: 60s
+    groupWait: 60s
+    receiver: slack-receiver
+    repeatInterval: 1m
+    receiver: slack-receiver
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: slack-secret
+data:
+  apiURL: aHR0cHM6Ly9ob29rcy5zbGFjay5jb20vc2VydmljZXMvVDAxTENSTVBCREsvQjA3MEtNNE5EUEEvYm12ZXhXVm5SNW9TTXh6Z0g2aENHVDd6Cg==
